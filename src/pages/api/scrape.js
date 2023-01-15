@@ -1,15 +1,15 @@
 import { load } from "cheerio";
 import puppeteer from "puppeteer";
 
-const testUrl = "https://www.kabum.com.br/hardware/processadores";
-
 export default async function handler(req, res) {
   const method = req.method;
 
-  if (method === "GET") {
+  if (method === "POST") {
+    const { url } = req.body;
+
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
-    await page.goto(testUrl);
+    await page.goto(url);
     const html = await page.content();
 
     const $ = load(html);
@@ -18,13 +18,15 @@ export default async function handler(req, res) {
 
     $(".productCard").each((i, el) => {
       const title = $(".nameCard", el).text();
-      const price = $(".priceCard", el).text();
+      const price = parseFloat(
+        $(".priceCard", el).text().slice(3, 999).replace(",", ".")
+      );
       const link = "www.kabum.com.br" + $(".htpbqG", el).attr("href");
       products.push({ title, price, link });
     });
 
     console.log(products);
-    res.status(200).json(products);
+    res.status(200).json({ size: products.length, products });
   } else {
     res.send("Method not allowed");
   }
