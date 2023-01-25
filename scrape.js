@@ -1,5 +1,5 @@
-import { load } from "cheerio";
-import puppeteer from "puppeteer";
+const { load } = require("cheerio");
+const puppeteer = require("puppeteer");
 
 export default async function handler(req, res) {
   const method = req.method;
