@@ -84,5 +84,41 @@ export default class KabumScrapper {
 
     await browser.close();
   }
-  static async getPricesByQuery(query) {}
+  static async getPricesByQuery(query) {
+    //https://www.kabum.com.br/busca/asdasd
+  }
+  static async deepScrapeByLink(link) {
+    const browser = await getPageByUrl(link);
+    const html = await browser.content();
+
+    $ = load(html);
+
+    const name = $(".gQusXy").text();
+    const description = $("#description").text().trim();
+    const inCashPrice = parseFloat(
+      $(".finalPrice").text().slice(2, 999).replace(",", ".")
+    );
+    const installmentPrice = parseFloat(
+      $(".regularPrice").text().slice(2, 999).replace(",", ".")
+    );
+    const categories = [];
+    const images = [];
+
+    $(".jgeTtK a").each((i, el) => {
+      categories.push($("", el).text());
+    });
+
+    images.push($(".iiz__img").text());
+
+    return {
+      name,
+      description,
+      inCashPrice,
+      installmentPrice,
+      categories,
+      images,
+      link,
+      store: "Kabum",
+    };
+  }
 }
